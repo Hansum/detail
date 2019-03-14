@@ -78,4 +78,37 @@ class EditProfileController extends CI_Controller {
             echo json_encode($result);
         }
     }
+
+
+    public function uploadPicture()
+    {
+        $id = json_decode(file_get_contents("php://input"));
+        // $decode = base64_decode($id->data);
+        // $data = explode(',',$id->data);
+        $headers = $this->input->request_headers();
+        $token=AUTHORIZATION::isAuthorize($headers,$this->config->item('jwt_key'));
+
+        $res = array(
+            'user_id' => $id->userId,
+            // 'picture' => $data[1]
+            'picture' => $id->data
+        );
+
+        if($token)
+        {
+            $upload = $this->EditProfileModel->uploadpic($res);
+            if($upload)
+            {
+                $message = ['result'=>true,'status'=>'Authorized','message'=>'Upload picture success'];
+                echo json_encode($message);
+            }else{
+                $message = ['result'=>false,'status'=>'Authorized','message'=>'Error in uploading picture'];
+                echo json_encode($message);
+            }
+        }else{
+            $result = ['status'=>'Unauthorized','message'=>'token expired'];
+            echo json_encode($result);
+        }
+        // echo json_encode($res);
+    }
 }

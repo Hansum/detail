@@ -16,18 +16,33 @@ class LoginRegisterModel extends CI_Model {
         $this->db->where('username', $username);
         $this->db->where('password', $password);
         $res=$this->db->get();
-
-        return $res->result();
+        if($res)
+        {
+            return $res->result();
+        }
+        return FALSE;
     }
 
 
     //REGISTRATION
-    public function registerUser($res)
+    public function registerUsers($user)
     {
+        $result1 = $this->db->insert('user', $user);
+        $insert_id = $this->db->insert_id();
+        // $result2 = $this->db->insert('user_detail',$dummy); 
 
-        $result = $this->db->insert('user',$res);
+        $dummy = array(
+            'user_id' => $insert_id,
+            'fname' => 'edit firstname here',
+            'lname' => 'edit lastname here',
+            'email' => 'edit email here',
+            'dob' => 'edit dob here',
+            'organization' => 'edit organization here'
+        );
 
-        if($result)
+        $result2 = $this->db->insert('user_detail',$dummy);
+
+        if($result && $result2)
         {
             return TRUE;
         }else{
@@ -35,11 +50,12 @@ class LoginRegisterModel extends CI_Model {
         }
     }
 
+    //INSERTING USER DETAILS
     public function insertUserInfo($res)
     {
-        $result2 = $this->db->insert('user_detail',$res);
+        $result = $this->db->insert('user_detail',$res);
 
-        if($result2)
+        if($result)
         {
             return TRUE;
         }else{

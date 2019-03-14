@@ -1,8 +1,5 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-use Restserver\Libraries\REST_Controller;
-require APPPATH . 'libraries/REST_Controller.php';
-require APPPATH . 'libraries/Format.php';
 class LoginRegisterController extends CI_Controller {
 
     public function __construct()
@@ -14,14 +11,15 @@ class LoginRegisterController extends CI_Controller {
 		header('Access-Control-Allow-Methods: GET, POST, PATCH, PUT, DELETE, OPTIONS');
 		header("Access-Control-Allow-Origin: *");
         header('Content-Type: application/json');
+        header('Access-Control-Allow-Credentials: true');
     }
 
-
+    //USER LOGIN AND GENERATE THE TOKEN
     public function getUserLogin()
     {
        
         $data = json_decode(file_get_contents("php://input"));
-        $uname=$data->username;
+        $uname = $data->username;
         $pass=$data->password;
         // $uname='admin';
         // $pass='admin';
@@ -63,32 +61,32 @@ class LoginRegisterController extends CI_Controller {
     //REGISTER USERNAME AND PASSWORD
     public function registerUser()
     {
-        
         $data = json_decode(file_get_contents("php://input"));
         $headers = $this->input->request_headers();
-
         $token=AUTHORIZATION::isAuthorize($headers,$this->config->item('jwt_key'));
 
-        $res = array(
+        // $uname = $data->username;
+        // $pass = $data->password;
+        $user = array(
             'username'=>$data->username,
-            'password'=>$data->password
+            'password'=>$pass->password
         );
 
         if($token)
         {
-            $ins = $this->LoginRegisterModel->registerUser($res);
-        
+            $ins = $this->LoginRegisterModel->registerUsers($user);
             if($ins){
-                $message = ['result'=>true,'message'=>'registration successful'];
+                $message = ['result'=>true,'status'=>'Authorized','message'=>'registration successful'];
                 echo json_encode($message);
             }else{
-                $message2 = ['result'=>false,'message'=>'registration unsucessful'];
-                echo json_encode($message2);
+                $message = ['result'=>false,'message'=>'registration unsuccessful'];
+                echo json_encode($message);
             }
         }else{
-            $result = ['result'=>false,'status'=>'Unauthorized','message'=>'token expired'];
+            $result = ['status'=>'Unauthorized','message'=>'token expired'];
             echo json_encode($result);
         }
+        // echo json_encode($uname, $pass);
     }
 
 
@@ -152,16 +150,19 @@ class LoginRegisterController extends CI_Controller {
                         'lname' => $fetchDetail->lname,
                         'email' => $fetchDetail->email,
                         'birthdate' => $fetchDetail->dob,
-                        'organization'=> $fetchDetail->organization
+                        'organization'=> $fetchDetail->organization,
+                        'picture' => $fetchDetail->picture
                     ];
                 }
                 echo json_encode($result);
             }else{
-                $message = ['result'=>false,'status'=>'Unauthorized','message'=>'User detail not found'];
+                // $message = ['result'=>false,'status'=>'Unauthorized','message'=>'User detail not found'];
+                // echo json_encode($message);
+                $message = ['result'=>false,'message'=>'User detail not found'];
                 echo json_encode($message);
             }
         }else{
-            $result = ['status'=>'Unauthorized','message'=>'token expired'];
+            $result = ['result'=>false,'status'=>'Unauthorized','message'=>'token expired'];
             echo json_encode($result);
         }
     }

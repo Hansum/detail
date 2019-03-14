@@ -36,4 +36,17 @@ class EditProfileModel extends CI_Model {
             return FALSE;
         }
     }
+
+    public function uploadpic($res)
+    {
+        $this->db->where('user_id',$res['user_id']);
+        $result = $this->db->update('user_detail',$res);
+
+        if($result)
+        {
+            return TRUE;
+        }else{
+            return FALSE;
+        }
+    }
 }
