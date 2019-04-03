@@ -94,3 +94,12 @@ $db['default'] = array(
 	'failover' => array(),
 	'save_queries' => TRUE
 );
+
+$db['mongodb']['hostname'] = "localhost";
+$db['mongodb']['port'] = "27017";
+$db['mongodb']['username'] = "root";
+$db['mongodb']['password'] = "";
+$db['mongodb']['dbdriver'] = "mongodb";
+$db['mongodb']['database'] = "detaildb";
+
+

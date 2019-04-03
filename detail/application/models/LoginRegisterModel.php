@@ -6,6 +6,12 @@ class LoginRegisterModel extends CI_Model {
 
     public function __construct(){
         parent::__construct();
+
+        header('Access-Control-Allow-Headers: Origin, Content-Type, X-Auth-Token, Authorization');
+		header('Access-Control-Allow-Methods: GET, POST, PATCH, PUT, DELETE, OPTIONS');
+		header("Access-Control-Allow-Origin: *");
+        header('Content-Type: application/json');
+        header('Access-Control-Allow-Credentials: true');
     }
 
     //FETCH USER
@@ -25,28 +31,29 @@ class LoginRegisterModel extends CI_Model {
 
 
     //REGISTRATION
-    public function registerUsers($user)
+    public function signUp($user)
     {
-        $result1 = $this->db->insert('user', $user);
-        $insert_id = $this->db->insert_id();
-        // $result2 = $this->db->insert('user_detail',$dummy); 
-
-        $dummy = array(
-            'user_id' => $insert_id,
-            'fname' => 'edit firstname here',
-            'lname' => 'edit lastname here',
-            'email' => 'edit email here',
-            'dob' => 'edit dob here',
-            'organization' => 'edit organization here'
-        );
-
-        $result2 = $this->db->insert('user_detail',$dummy);
-
-        if($result && $result2)
-        {
-            return TRUE;
-        }else{
-            return FALSE;
+        $x = FALSE;
+        // $this->load->library('mongo_db',array('activate'=>'detailDatabase'),'mongo_detailDatabase');
+        $registerResult = $this->db->insert('user', $user);
+        if($registerResult){
+            $insert_id = $this->db->insert_id();
+            $dummy = array(
+                'user_id' => $insert_id,
+                'fname' => 'edit firstname here',
+                'lname' => 'edit lastname here',
+                'email' => 'edit email here',
+                'dob' => 'edit dob here',
+                'organization' => 'edit organization here'
+            );
+            $detailResult = $this->db->insert('user_detail',$dummy);
+            if($detailResult)
+            {
+                $x = TRUE;
+            }
+            return $x;
+        } else {
+            return $x;
         }
     }
 
@@ -65,9 +72,10 @@ class LoginRegisterModel extends CI_Model {
 
     public function getuserDetail($id)
     {
-        $this->db->select('*');
-        $this->db->from('user_detail');
-        $this->db->where('user_id', $id);
+        $this->db->select('username,fname,lname,email,dob,organization,picture');
+		$this->db->from('user_detail');
+		$this->db->join('user','user_detail.user_id = user.user_id');
+        $this->db->where('user_detail.user_id', $id);
         $res=$this->db->get();
 
         return $res->result();

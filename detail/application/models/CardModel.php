@@ -7,16 +7,21 @@ class CardModel extends CI_Model {
     {
         parent::__construct();
         $this->load->model('CardModel');
+        // $mysql = $this->load->database('default',TRUE);
+        // $mongo = $this->load->database('mongodb',TRUE);
     }
 
 
     public function cardInsertion($data)
     {
-
+        // $mongo = $this->load->database('mongodb',TRUE);
+        // $m = $this->db2->pictures; 
+        // $collection = $m->pictures;
         $insert = $this->db->insert('business_card',$data);
         $x = FALSE;
         if($insert)
         {
+            // $m->insert($mongopic);
             // $user = array(
             //     'user_id'=>$id,
             //     'businesscard_id' => $this->db->insert_id()
@@ -67,7 +72,7 @@ class CardModel extends CI_Model {
         // $this->db->where('user.user_id',$id);
         // $this->db->where('business_card.user_id != received_cards.user_id');
 
-        $this->db->select('business_card.businessCard_id,fname,lname,card_name,position,business_card.organization,address,cellphone,telephone,social_media,business_card.email,website');
+        $this->db->select('business_card.businessCard_id,fname,lname,card_name,position,business_card.organization,address,cellphone,telephone,social_media,business_card.email,website,business_card.picture');
         $this->db->from('business_card');
         $this->db->join('user_detail','business_card.user_id =  user_detail.user_id');
         $this->db->join('received_cards','business_card.businessCard_id = received_cards.businessCard_id','left');
@@ -100,13 +105,12 @@ class CardModel extends CI_Model {
     }
 
 
-    public function receivedPersonalCards($data)
+    public function sendPersonalCards($data)
     {
 
         $receivedResult = $this->db->insert('received_cards',$data);
-        $logsResult = $this->db->insert('logs',$data);
         $x = FALSE;
-        if($result && $logsResult)
+        if($receivedResult)
         {
             $x = TRUE;
         }
@@ -149,11 +153,23 @@ class CardModel extends CI_Model {
         return $x;
     }
 
+    public function fetchCardDetail($id)
+    {
+        $this->db->select('lname,fname,businessCard_id,user.user_id,card_name,position,business_card.organization,address,cellphone,telephone,social_media,business_card.email,website,business_card.picture');
+        $this->db->from('user_detail');
+        $this->db->join('user','user_detail.user_id = user.user_id','left');
+        $this->db->join('business_card','business_card.user_id = user.user_id','left');
+        $this->db->where('business_card.businessCard_id',$id);
 
-    // public function sendPersonalCards($data)
-    // {
-    //     $this->db->insert('received_cards',$data);
-    // }
+        $result = $this->db->get();
+        if($result)
+        {
+            return $result->result();
+        }
+        return $x;
+    }
+
+
     
 
     // public function test(){

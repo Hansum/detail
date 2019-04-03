@@ -7,11 +7,12 @@ class LoginRegisterController extends CI_Controller {
         parent::__construct();
         $this->load->model('LoginRegisterModel');
 
-        header('Access-Control-Allow-Headers: Origin, Content-Type, X-Auth-Token, Authorization');
-		header('Access-Control-Allow-Methods: GET, POST, PATCH, PUT, DELETE, OPTIONS');
+        header('Access-Control-Allow-Headers: *');
+        header('Access-Control-Allow-Methods: GET, POST, PATCH, PUT, DELETE, OPTIONS');
+        header ("Access-Control-Expose-Headers: Content-Length, X-JSON");
 		header("Access-Control-Allow-Origin: *");
-        header('Content-Type: application/json');
-        header('Access-Control-Allow-Credentials: true');
+
+       
     }
 
     //USER LOGIN AND GENERATE THE TOKEN
@@ -61,32 +62,34 @@ class LoginRegisterController extends CI_Controller {
     //REGISTER USERNAME AND PASSWORD
     public function registerUser()
     {
+
+        header('Access-Control-Allow-Headers: *');
+        header('Access-Control-Allow-Methods: GET, POST, PATCH, PUT, DELETE, OPTIONS');
+        header ("Access-Control-Expose-Headers: Content-Length, X-JSON");
+        header("Access-Control-Allow-Origin: *");
+        
         $data = json_decode(file_get_contents("php://input"));
-        $headers = $this->input->request_headers();
-        $token=AUTHORIZATION::isAuthorize($headers,$this->config->item('jwt_key'));
 
         // $uname = $data->username;
         // $pass = $data->password;
         $user = array(
             'username'=>$data->username,
-            'password'=>$pass->password
+            'password'=>$data->password
         );
 
-        if($token)
-        {
-            $ins = $this->LoginRegisterModel->registerUsers($user);
-            if($ins){
-                $message = ['result'=>true,'status'=>'Authorized','message'=>'registration successful'];
-                echo json_encode($message);
-            }else{
-                $message = ['result'=>false,'message'=>'registration unsuccessful'];
-                echo json_encode($message);
-            }
+        // echo json_encode($data);
+
+        $insert = $this->LoginRegisterModel->signUp($user);
+        if($insert){
+            // $message = ['result'=>TRUE];
+            $message = TRUE;
+            echo json_encode($message);
         }else{
-            $result = ['status'=>'Unauthorized','message'=>'token expired'];
-            echo json_encode($result);
+            // $message = ['result'=>FALSE];
+            $message = FALSE;
+            echo json_encode($message);
         }
-        // echo json_encode($uname, $pass);
+        // echo json_encode($insert);
     }
 
 
@@ -145,7 +148,8 @@ class LoginRegisterController extends CI_Controller {
             {
                 foreach($fetch as $fetchDetail){
                     $result = [
-                        // 'result'=>true,
+						// 'result'=>true,
+						'username'=>$fetchDetail->username,
                         'fname' => $fetchDetail->fname,
                         'lname' => $fetchDetail->lname,
                         'email' => $fetchDetail->email,
